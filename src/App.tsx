@@ -1,8 +1,9 @@
+type Priority = "Low" | "Medium" | "High"
 type Issue = {
     id: number;
     title: string;
     status: string;
-    priority: string;
+    priority: Priority;
 }
 const initialIssues: Issue[] = [
     {
@@ -39,7 +40,7 @@ function App() {
     const [showIssues, setShowIssues] = useState(true);
     const [issues, setIssues] = useState<Issue[]>(initialIssues);
     const [newIssueTitle, setNewIssueTitle] = useState("");
-
+    const [newIssuePriority, setNewIssuePriority] = useState<Priority>("Medium");
     function addIssue() {
         if (newIssueTitle.trim() == "") {
             return;
@@ -48,10 +49,11 @@ function App() {
             id: issues.length + 1,
             title: newIssueTitle,
             status: "Todo",
-            priority: "Medium"
+            priority: newIssuePriority
         };
         setIssues((currentIssues) => [...currentIssues, newIssue])
         setNewIssueTitle("")
+        setNewIssuePriority("Medium")
     }
 
     function handleSumbit(event: React.SubmitEvent<HTMLFormElement>) {
@@ -76,6 +78,16 @@ function App() {
                         value={newIssueTitle}
                         onChange={(event) => setNewIssueTitle(event.target.value)}
                     />
+
+                    <select
+                        value={newIssuePriority}
+                        onChange={(event) => {
+                            setNewIssuePriority(event.target.value as Priority)
+                        }}>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
                     <button type='submit'>
                         Add Issue
                     </button>
