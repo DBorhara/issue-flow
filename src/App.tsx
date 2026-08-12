@@ -58,6 +58,20 @@ function App() {
         setNewIssueTitle("")
         setNewIssuePriority("Medium")
     }
+    function updateIssueStatus(id: number, newStatus: Status) {
+        setIssues((currentIssues) =>
+            currentIssues.map((issue) => {
+                if (issue.id === id) {
+                    return {
+                        ...issue,
+                        status: newStatus,
+                    };
+                }
+
+                return issue;
+            })
+        );
+    }
 
     function handleSumbit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -122,9 +136,11 @@ function App() {
                 {showIssues && filteredIssues.map((issue) => (
                     <IssueCard
                         key={issue.id}
+                        id={issue.id}
                         title={issue.title}
                         status={issue.status}
                         priority={issue.priority}
+                        onStatusChange={updateIssueStatus}
                     />
                 ))}
             </main>
