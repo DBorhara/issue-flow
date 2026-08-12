@@ -38,14 +38,20 @@ import IssueCard from './components/IssueCard'
 function App() {
     const [showIssues, setShowIssues] = useState(true);
     const [issues, setIssues] = useState<Issue[]>(initialIssues);
+    const [newIssueTitle, setNewIssueTitle] = useState("");
+
     function addIssue() {
+        if (newIssueTitle.trim() == "") {
+            return;
+        }
         const newIssue: Issue = {
             id: issues.length + 1,
-            title: "New test issue",
+            title: newIssueTitle,
             status: "Todo",
             priority: "Medium"
         };
         setIssues((currentIssues) => [...currentIssues, newIssue])
+        setNewIssueTitle("")
     }
     return (
         <div>
@@ -58,6 +64,11 @@ function App() {
                 </button>
 
                 <h2> My Issues </h2>
+                <input
+                    type="text"
+                    value={newIssueTitle}
+                    onChange={(event) => setNewIssueTitle(event.target.value)}
+                />
                 <button onClick={addIssue}>
                     Add Issue
                 </button>
