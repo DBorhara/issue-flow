@@ -1,8 +1,10 @@
-type Priority = "Low" | "Medium" | "High"
+type Priority = "Low" | "Medium" | "High";
+type Status = "Todo" | "In Progress" | "Done";
+type StatusFilter = "All" | Status;
 type Issue = {
     id: number;
     title: string;
-    status: string;
+    status: Status;
     priority: Priority;
 }
 const initialIssues: Issue[] = [
@@ -41,6 +43,7 @@ function App() {
     const [issues, setIssues] = useState<Issue[]>(initialIssues);
     const [newIssueTitle, setNewIssueTitle] = useState("");
     const [newIssuePriority, setNewIssuePriority] = useState<Priority>("Medium");
+    const [statusFilter, setStatusFilter] = useState<StatusFilter>("All")
     function addIssue() {
         if (newIssueTitle.trim() == "") {
             return;
@@ -61,6 +64,13 @@ function App() {
 
         addIssue();
     }
+    const filteredIssues = issues.filter((issue) => {
+        if (statusFilter === "All") {
+            return true;
+        }
+
+        return issue.status === statusFilter;
+    });
     return (
         <div>
 
@@ -88,12 +98,28 @@ function App() {
                         <option value="Medium">Medium</option>
                         <option value="High">High</option>
                     </select>
+
+                    <label>
+                        Filter by status:
+
+                        <select
+                            value={statusFilter}
+                            onChange={(event) =>
+                                setStatusFilter(event.target.value as StatusFilter)
+                            }
+                        >
+                            <option value="All">All</option>
+                            <option value="Todo">Todo</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </label>
                     <button type='submit'>
                         Add Issue
                     </button>
                 </form>
 
-                {showIssues && issues.map((issue) => (
+                {showIssues && filteredIssues.map((issue) => (
                     <IssueCard
                         key={issue.id}
                         title={issue.title}
