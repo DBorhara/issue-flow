@@ -53,6 +53,12 @@ function App() {
         setIssues((currentIssues) => [...currentIssues, newIssue])
         setNewIssueTitle("")
     }
+
+    function handleSumbit(event: React.SubmitEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        addIssue();
+    }
     return (
         <div>
 
@@ -64,14 +70,17 @@ function App() {
                 </button>
 
                 <h2> My Issues </h2>
-                <input
-                    type="text"
-                    value={newIssueTitle}
-                    onChange={(event) => setNewIssueTitle(event.target.value)}
-                />
-                <button onClick={addIssue}>
-                    Add Issue
-                </button>
+                <form onSubmit={handleSumbit}>
+                    <input
+                        type="text"
+                        value={newIssueTitle}
+                        onChange={(event) => setNewIssueTitle(event.target.value)}
+                    />
+                    <button type='submit'>
+                        Add Issue
+                    </button>
+                </form>
+
                 {showIssues && issues.map((issue) => (
                     <IssueCard
                         key={issue.id}
