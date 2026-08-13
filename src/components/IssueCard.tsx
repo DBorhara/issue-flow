@@ -5,6 +5,7 @@ type IssueCardProps = {
     status: Status;
     priority: Priority;
     onStatusChange: (id: number, status: Status) => void;
+    onDelete: (id: number) => void;
 }
 function IssueCard(props: IssueCardProps) {
     return (
@@ -23,6 +24,10 @@ function IssueCard(props: IssueCardProps) {
             </label>
 
             <p>Priority:{props.priority}</p>
+
+            <button onClick={() => props.onDelete(props.id)}>
+                Delete
+            </button>
         </div >
     );
 }

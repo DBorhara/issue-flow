@@ -41,6 +41,7 @@ function App() {
     const [newIssueTitle, setNewIssueTitle] = useState("");
     const [newIssuePriority, setNewIssuePriority] = useState<Priority>("Medium");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("All")
+
     function addIssue() {
         if (newIssueTitle.trim() == "") {
             return;
@@ -69,12 +70,17 @@ function App() {
             })
         );
     }
+    function deleteIssue(id: number) {
+        setIssues((currentIssues) =>
+            currentIssues.filter((issue) => issue.id !== id))
+    }
 
     function handleSumbit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
 
         addIssue();
     }
+
     const filteredIssues = issues.filter((issue) => {
         if (statusFilter === "All") {
             return true;
@@ -138,6 +144,7 @@ function App() {
                         status={issue.status}
                         priority={issue.priority}
                         onStatusChange={updateIssueStatus}
+                        onDelete={deleteIssue}
                     />
                 ))}
             </main>
