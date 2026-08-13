@@ -1,12 +1,9 @@
-type Priority = "Low" | "Medium" | "High";
-type Status = "Todo" | "In Progress" | "Done";
+import type {
+    Issue,
+    Priority,
+    Status
+} from './types';
 type StatusFilter = "All" | Status;
-type Issue = {
-    id: number;
-    title: string;
-    status: Status;
-    priority: Priority;
-}
 const initialIssues: Issue[] = [
     {
         id: 1,

@@ -1,9 +1,9 @@
-type Status = "Todo" | "In Progress" | "Done"
+import type { Status, Priority } from '../types'
 type IssueCardProps = {
     id: number;
     title: string;
     status: Status;
-    priority: string;
+    priority: Priority;
     onStatusChange: (id: number, status: Status) => void;
 }
 function IssueCard(props: IssueCardProps) {
