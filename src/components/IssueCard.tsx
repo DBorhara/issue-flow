@@ -18,76 +18,118 @@ function IssueCard(props: IssueCardProps) {
 
     function saveChanges() {
         if (editedTitle.trim() === "") {
-            return
+            return;
         }
 
-        props.onTitleChange(props.id, editedTitle.trim())
-        props.onPriorityChange(props.id, editedPriority)
+        props.onTitleChange(props.id, editedTitle.trim());
+        props.onPriorityChange(props.id, editedPriority);
 
-        setIsEditing(false)
+        setIsEditing(false);
     }
 
     function cancelEditing() {
-        setEditedTitle(props.title)
-        setEditedPriority(props.priority)
-        setIsEditing(false)
+        setEditedTitle(props.title);
+        setEditedPriority(props.priority);
+        setIsEditing(false);
     }
+
     return (
-        <div>
+        <article className="issue-card">
             {isEditing ? (
-                <div>
+                <div className="issue-edit">
                     <input
+                        className="issue-edit-input"
                         type="text"
                         value={editedTitle}
                         onChange={(event) =>
-                            setEditedTitle(event.target.value)} />
+                            setEditedTitle(event.target.value)
+                        }
+                    />
+
                     <select
                         value={editedPriority}
                         onChange={(event) =>
-                            setEditedPriority(event.target.value as Priority)}>
+                            setEditedPriority(
+                                event.target.value as Priority
+                            )
+                        }
+                    >
                         <option value="Low">Low</option>
                         <option value="Medium">Medium</option>
                         <option value="High">High</option>
                     </select>
 
-                    <button onClick={saveChanges}>
-                        Save
-                    </button>
-                    <button onClick={cancelEditing}>
-                        Cancel
-                    </button>
-                </div>
-            )
-                : (
-                    <div>
-                        <h3>{props.title}</h3>
+                    <div className="issue-actions">
+                        <button onClick={saveChanges}>
+                            Save
+                        </button>
 
-                        <button onClick={() => setIsEditing(true)}>
-                            Edit
+                        <button
+                            className="secondary-button"
+                            onClick={cancelEditing}
+                        >
+                            Cancel
                         </button>
                     </div>
-                )}
-            <label>
-                Status:
-                <select
-                    value={props.status}
-                    onChange={(event) =>
-                        props.onStatusChange(props.id, event.target.value as
-                            Status)}>
-                    <option value="Todo">Todo</option>
-                    <option value="In Progress"> In Progress</option>
-                    <option value="Done">Done</option>
-                </select>
-            </label>
+                </div>
+            ) : (
+                <>
+                    <div className="issue-card-main">
+                        <div>
+                            <h3>{props.title}</h3>
 
-            <p>Priority:{props.priority}</p>
-            <button onClick={() => setIsEditing(true)}>
-                Edit
-            </button>
-            <button onClick={() => props.onDelete(props.id)}>
-                Delete
-            </button>
-        </div >
+                            <div className="issue-badges">
+                                <span
+                                    className={`badge priority-${props.priority.toLowerCase()}`}
+                                >
+                                    {props.priority}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="issue-actions">
+                            <button
+                                className="secondary-button"
+                                onClick={() => setIsEditing(true)}
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                className="delete-button"
+                                onClick={() =>
+                                    props.onDelete(props.id)
+                                }
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="issue-card-footer">
+                        <label>
+                            Status
+
+                            <select
+                                value={props.status}
+                                onChange={(event) =>
+                                    props.onStatusChange(
+                                        props.id,
+                                        event.target.value as Status
+                                    )
+                                }
+                            >
+                                <option value="Todo">Todo</option>
+                                <option value="In Progress">
+                                    In Progress
+                                </option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </label>
+                    </div>
+                </>
+            )}
+        </article>
     );
 }
 
