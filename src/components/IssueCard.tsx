@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Status, Priority } from '../types'
 type IssueCardProps = {
     id: number;
@@ -5,12 +6,52 @@ type IssueCardProps = {
     status: Status;
     priority: Priority;
     onStatusChange: (id: number, status: Status) => void;
+    onTitleChange: (id: number, title: string) => void;
     onDelete: (id: number) => void;
 }
 function IssueCard(props: IssueCardProps) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedTitle, setEditedTitle] = useState(props.title);
+    function saveTitle() {
+        if (editedTitle.trim() === "") {
+            return
+        }
+
+        props.onTitleChange(props.id, editedTitle.trim())
+
+        setIsEditing(false)
+    }
+
+    function cancelEditing() {
+        setEditedTitle(props.title)
+        setIsEditing(false)
+    }
     return (
         <div>
-            <h3>{props.title}</h3>
+            {isEditing ? (
+                <div>
+                    <input
+                        type="text"
+                        value={editedTitle}
+                        onChange={(event) => setEditedTitle(event.target.value)} />
+
+                    <button onClick={saveTitle}>
+                        Save
+                    </button>
+                    <button onClick={cancelEditing}>
+                        Cancel
+                    </button>
+                </div>
+            )
+                : (
+                    <div>
+                        <h3>{props.title}</h3>
+
+                        <button onClick={() => setIsEditing(true)}>
+                            Edit
+                        </button>
+                    </div>
+                )}
             <label>
                 Status:
                 <select
@@ -24,7 +65,9 @@ function IssueCard(props: IssueCardProps) {
             </label>
 
             <p>Priority:{props.priority}</p>
-
+            <button onClick={() => setIsEditing(true)}>
+                Edit
+            </button>
             <button onClick={() => props.onDelete(props.id)}>
                 Delete
             </button>

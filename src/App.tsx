@@ -80,6 +80,20 @@ function App() {
             currentIssues.filter((issue) => issue.id !== id))
     }
 
+    function updateIssueTitle(id: number, newTitle: string) {
+        setIssues((currentIssues) =>
+            currentIssues.map((issue) => {
+                if (issue.id === id) {
+                    return {
+                        ...issue,
+                        title: newTitle
+                    }
+                }
+                return issue;
+            })
+        )
+    }
+
     function handleSumbit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
 
@@ -155,6 +169,7 @@ function App() {
                         status={issue.status}
                         priority={issue.priority}
                         onStatusChange={updateIssueStatus}
+                        onTitleChange={updateIssueTitle}
                         onDelete={deleteIssue}
                     />
                 ))}
