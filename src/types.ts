@@ -8,3 +8,11 @@ export type Issue = {
     status: Status;
     priority: Priority;
 }
+
+export type StatusFilter = "All" | Status;
+
+export type SortOption =
+    | "Newest"
+    | "Oldest"
+    | "Priority"
+    | "Title";

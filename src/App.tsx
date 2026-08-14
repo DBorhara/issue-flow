@@ -1,14 +1,10 @@
 import type {
     Issue,
     Priority,
-    Status
+    SortOption,
+    Status,
+    StatusFilter
 } from './types';
-type StatusFilter = "All" | Status;
-type SortOption =
-    | "Newest"
-    | "Oldest"
-    | "Priority"
-    | "Title";
 const initialIssues: Issue[] = [
     {
         id: 1,
@@ -40,15 +36,15 @@ import { useState } from "react"
 import Header from './components/Header'
 import IssueCard from './components/IssueCard'
 import IssuesSummary from './components/IssueSummary';
+import IssueForm from './components/IssueForm';
+import IssueControls from './components/IssueControls';
 
 function App() {
     const [showIssues, setShowIssues] = useState(true);
     const [issues, setIssues] = useState<Issue[]>(initialIssues);
-    const [newIssueTitle, setNewIssueTitle] = useState("");
-    const [newIssuePriority, setNewIssuePriority] =
-        useState<Priority>("Medium");
-    const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
     const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] =
+        useState<StatusFilter>("All");
     const [sortOption, setSortOption] = useState<SortOption>("Newest");
 
     const totalIssues = issues.length;
@@ -57,24 +53,18 @@ function App() {
         issue.status === "In Progress").length
     const doneCount = issues.filter((issue) => issue.status === "Done").length
 
-    function addIssue() {
-        if (newIssueTitle.trim() == "") {
-            return;
-        }
+    function addIssue(title: string, priority: Priority) {
         setIssues((currentIssues) => {
-            const nextId = Math.max(0, ...currentIssues.map((issue) =>
-                issue.id)) + 1;
+            const nextId = Math.max(0, ...currentIssues.map((issue) => issue.id)) + 1
+
             const newIssue: Issue = {
                 id: nextId,
-                title: newIssueTitle,
+                title,
                 status: "Todo",
-                priority: newIssuePriority
-            };
-            console.log("nextid:" + nextId)
-            return [...currentIssues, newIssue]
-        });
-        setNewIssueTitle("")
-        setNewIssuePriority("Medium")
+                priority
+            }
+            return [...currentIssues, newIssue];
+        })
     }
     function updateIssueStatus(id: number, newStatus: Status) {
         setIssues((currentIssues) =>
@@ -123,11 +113,6 @@ function App() {
             ))
     }
 
-    function handleSumbit(event: React.SubmitEvent<HTMLFormElement>) {
-        event.preventDefault();
-
-        addIssue();
-    }
 
     const matchingIssues = issues.filter((issue) => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -184,7 +169,14 @@ function App() {
                 }} >
                     {showIssues ? "Hide Issues" : "Show Issues"}
                 </button>
-                <input
+                <IssueControls
+                    searchTerm={searchTerm}
+                    statusFilter={statusFilter}
+                    sortOption={sortOption}
+                    onSearchChange={setSearchTerm}
+                    onStatusFilterChange={setStatusFilter}
+                    onSortChange={setSortOption}
+                />               <input
                     type='text'
                     placeholder='Search Issues'
                     value={searchTerm}
@@ -202,45 +194,7 @@ function App() {
                     </select>
                 </label>
                 <h2> My Issues </h2>
-                <form onSubmit={handleSumbit}>
-                    <input
-                        type="text"
-                        value={newIssueTitle}
-                        onChange={(event) =>
-                            setNewIssueTitle(event.target.value)}
-                    />
-
-                    <select
-                        value={newIssuePriority}
-                        onChange={(event) => {
-                            setNewIssuePriority(event.target.value as Priority)
-                        }}>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                    </select>
-
-                    <label>
-                        Filter by status:
-
-                        <select
-                            value={statusFilter}
-                            onChange={(event) =>
-                                setStatusFilter(event.target.value as
-                                    StatusFilter)
-                            }
-                        >
-                            <option value="All">All</option>
-                            <option value="Todo">Todo</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Done">Done</option>
-                        </select>
-                    </label>
-                    <button type='submit'>
-                        Add Issue
-                    </button>
-                </form>
-
+                <IssueForm onAddIssue={addIssue} />
                 {showIssues && sortedIssues.map((issue) => (
                     <IssueCard
                         key={issue.id}
