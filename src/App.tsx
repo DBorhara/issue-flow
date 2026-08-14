@@ -4,6 +4,11 @@ import type {
     Status
 } from './types';
 type StatusFilter = "All" | Status;
+type SortOption =
+    | "Newest"
+    | "Oldest"
+    | "Priority"
+    | "Title";
 const initialIssues: Issue[] = [
     {
         id: 1,
@@ -42,8 +47,9 @@ function App() {
     const [newIssueTitle, setNewIssueTitle] = useState("");
     const [newIssuePriority, setNewIssuePriority] =
         useState<Priority>("Medium");
-    const [statusFilter, setStatusFilter] = useState<StatusFilter>("All")
+    const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
     const [searchTerm, setSearchTerm] = useState("");
+    const [sortOption, setSortOption] = useState<SortOption>("Newest");
 
     const totalIssues = issues.length;
     const todoCount = issues.filter((issue) => issue.status === "Todo").length
@@ -123,18 +129,44 @@ function App() {
         addIssue();
     }
 
-    const filteredIssues = issues.filter((issue) => {
+    const matchingIssues = issues.filter((issue) => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
-        const matchStatus = statusFilter == "All"
-            || issue.status == statusFilter;
+        const matchesStatus =
+            statusFilter === "All" ||
+            issue.status === statusFilter;
 
-        const matchSearch = issue.title
+        const matchesSearch = issue.title
             .toLowerCase()
             .includes(normalizedSearch);
 
-        return matchStatus && matchSearch;
-
+        return matchesStatus && matchesSearch;
     });
+
+    const priorityOrder: Record<Priority, number> = {
+        High: 3,
+        Medium: 2,
+        Low: 1,
+    };
+
+    const sortedIssues = [...matchingIssues];
+
+    if (sortOption === "Title") {
+        sortedIssues.sort((a, b) =>
+            a.title.localeCompare(b.title))
+    }
+
+    if (sortOption === "Newest") {
+        sortedIssues.sort((a, b) => b.id - a.id)
+    }
+
+    if (sortOption === "Oldest") {
+        sortedIssues.sort((a, b) => a.id - b.id)
+    }
+
+    if (sortOption === "Priority") {
+        sortedIssues.sort((a, b) =>
+            priorityOrder[b.priority] - priorityOrder[a.priority])
+    }
     return (
         <div>
 
@@ -157,6 +189,18 @@ function App() {
                     placeholder='Search Issues'
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)} />
+                <label>
+                    Sort by:
+                    <select
+                        value={sortOption}
+                        onChange={(event) => setSortOption(event.target.value as
+                            SortOption)}>
+                        <option value="Newest">Newest</option>
+                        <option value="Oldest">Oldest</option>
+                        <option value="Priority">Priority</option>
+                        <option value="Title">Title</option>
+                    </select>
+                </label>
                 <h2> My Issues </h2>
                 <form onSubmit={handleSumbit}>
                     <input
@@ -197,7 +241,7 @@ function App() {
                     </button>
                 </form>
 
-                {showIssues && filteredIssues.map((issue) => (
+                {showIssues && sortedIssues.map((issue) => (
                     <IssueCard
                         key={issue.id}
                         id={issue.id}
