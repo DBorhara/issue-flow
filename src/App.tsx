@@ -41,6 +41,7 @@ function App() {
     const [newIssueTitle, setNewIssueTitle] = useState("");
     const [newIssuePriority, setNewIssuePriority] = useState<Priority>("Medium");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("All")
+    const [searchTerm, setSearchTerm] = useState("");
 
     function addIssue() {
         if (newIssueTitle.trim() == "") {
@@ -86,11 +87,13 @@ function App() {
     }
 
     const filteredIssues = issues.filter((issue) => {
-        if (statusFilter === "All") {
-            return true;
-        }
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const matchStatus = statusFilter == "All" || issue.status == statusFilter;
 
-        return issue.status === statusFilter;
+        const matchSearch = issue.title.toLowerCase().includes(normalizedSearch);
+
+        return matchStatus && matchSearch;
+
     });
     return (
         <div>
@@ -101,7 +104,11 @@ function App() {
                 <button onClick={() => { setShowIssues((current) => !current) }} >
                     {showIssues ? "Hide Issues" : "Show Issues"}
                 </button>
-
+                <input
+                    type='text'
+                    placeholder='Search Issues'
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)} />
                 <h2> My Issues </h2>
                 <form onSubmit={handleSumbit}>
                     <input
