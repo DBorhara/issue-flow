@@ -7,13 +7,26 @@ type IssueSummaryProps = {
 
 function IssuesSummary(props: IssueSummaryProps) {
     return (
+        <section className="summary">
+            <div className="summary-card">
+                <span>Total</span>
+                <strong>{props.total}</strong>
+            </div>
 
-        <section>
-            <h2> Overview </h2>
-            <p>Total: {props.total}</p>
-            <p>Todo: {props.todo}</p>
-            <p>In Progress: {props.inProgress}</p>
-            <p>Done: {props.done}</p>
+            <div className="summary-card">
+                <span>Todo</span>
+                <strong>{props.todo}</strong>
+            </div>
+
+            <div className="summary-card">
+                <span>In Progress</span>
+                <strong>{props.inProgress}</strong>
+            </div>
+
+            <div className="summary-card">
+                <span>Done</span>
+                <strong>{props.done}</strong>
+            </div>
         </section>
     )
 }

@@ -1,8 +1,10 @@
 function Header() {
     return (
-        <header>
-            <h1>IssueFlow</h1>
-            <p>Project management made simple.</p>
+        <header className="app-header">
+            <div className="app-header-content">
+                <h1>IssueFlow</h1>
+                <p>Project management made simple.</p>
+            </div>
         </header>
     );
 }

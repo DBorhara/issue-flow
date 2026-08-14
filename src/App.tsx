@@ -153,61 +153,51 @@ function App() {
             priorityOrder[b.priority] - priorityOrder[a.priority])
     }
     return (
-        <div>
+        <div className='app'>
 
-            <main>
-                <Header />
+            <Header />
+            <main className='main-content'>
                 <IssuesSummary
                     total={totalIssues}
                     todo={todoCount}
                     inProgress={inProgressCount}
                     done={doneCount}
                 />
-                <button onClick={() => {
-                    setShowIssues((current) =>
-                        !current)
-                }} >
-                    {showIssues ? "Hide Issues" : "Show Issues"}
-                </button>
-                <IssueControls
-                    searchTerm={searchTerm}
-                    statusFilter={statusFilter}
-                    sortOption={sortOption}
-                    onSearchChange={setSearchTerm}
-                    onStatusFilterChange={setStatusFilter}
-                    onSortChange={setSortOption}
-                />               <input
-                    type='text'
-                    placeholder='Search Issues'
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)} />
-                <label>
-                    Sort by:
-                    <select
-                        value={sortOption}
-                        onChange={(event) => setSortOption(event.target.value as
-                            SortOption)}>
-                        <option value="Newest">Newest</option>
-                        <option value="Oldest">Oldest</option>
-                        <option value="Priority">Priority</option>
-                        <option value="Title">Title</option>
-                    </select>
-                </label>
-                <h2> My Issues </h2>
-                <IssueForm onAddIssue={addIssue} />
-                {showIssues && sortedIssues.map((issue) => (
-                    <IssueCard
-                        key={issue.id}
-                        id={issue.id}
-                        title={issue.title}
-                        status={issue.status}
-                        priority={issue.priority}
-                        onStatusChange={updateIssueStatus}
-                        onTitleChange={updateIssueTitle}
-                        onPriorityChange={updateIssuePriority}
-                        onDelete={deleteIssue}
+
+                <section className='issue-panel'>
+                    <div className="issue-panel-header">
+                        <h2> Issues </h2>
+                        <button className='seconday-button'
+                            onClick={() => {
+                                setShowIssues((current) =>
+                                    !current)
+                            }} >
+                            {showIssues ? "Hide Issues" : "Show Issues"}
+                        </button>
+                    </div>
+                    <IssueForm onAddIssue={addIssue} />
+                    <IssueControls
+                        searchTerm={searchTerm}
+                        statusFilter={statusFilter}
+                        sortOption={sortOption}
+                        onSearchChange={setSearchTerm}
+                        onStatusFilterChange={setStatusFilter}
+                        onSortChange={setSortOption}
                     />
-                ))}
+                    {showIssues && sortedIssues.map((issue) => (
+                        <IssueCard
+                            key={issue.id}
+                            id={issue.id}
+                            title={issue.title}
+                            status={issue.status}
+                            priority={issue.priority}
+                            onStatusChange={updateIssueStatus}
+                            onTitleChange={updateIssueTitle}
+                            onPriorityChange={updateIssuePriority}
+                            onDelete={deleteIssue}
+                        />
+                    ))}
+                </section>
             </main>
         </div>)
 }
