@@ -46,13 +46,17 @@ function App() {
         if (newIssueTitle.trim() == "") {
             return;
         }
-        const newIssue: Issue = {
-            id: issues.length + 1,
-            title: newIssueTitle,
-            status: "Todo",
-            priority: newIssuePriority
-        };
-        setIssues((currentIssues) => [...currentIssues, newIssue])
+        setIssues((currentIssues) => {
+            const nextId = Math.max(0, ...currentIssues.map((issue) => issue.id)) + 1;
+            const newIssue: Issue = {
+                id: nextId,
+                title: newIssueTitle,
+                status: "Todo",
+                priority: newIssuePriority
+            };
+            console.log("nextid:" + nextId)
+            return [...currentIssues, newIssue]
+        });
         setNewIssueTitle("")
         setNewIssuePriority("Medium")
     }
