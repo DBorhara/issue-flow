@@ -26,10 +26,11 @@ function IssueForm(props: IssueFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="issue-form" onSubmit={handleSubmit}>
             <input
+                className="issue-form-input"
                 type="text"
-                placeholder="Issue title"
+                placeholder="What needs to be done?"
                 value={title}
                 onChange={(event) =>
                     setTitle(event.target.value)
@@ -37,6 +38,7 @@ function IssueForm(props: IssueFormProps) {
             />
 
             <select
+                className="issue-form-select"
                 value={priority}
                 onChange={(event) =>
                     setPriority(

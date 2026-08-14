@@ -76,8 +76,21 @@
 }
 
 @media (max-width: 700px) {
-  .summary {
+    .summary {
     grid-template-columns: repeat(2, 1fr);
+
+    .issue-form {
+  grid-template-columns: 1fr;
+}
+
+    .issue-controls {
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+
+.control-group select {
+  width: 100%;
+}
   }
 
   .issue-panel-header {
@@ -108,4 +121,72 @@ button:hover {
 
 .secondary-button:hover {
   background: #d1d5db;
+}
+
+.issue-form {
+  display: grid;
+  grid-template-columns: 1fr 160px auto;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.issue-form-input,
+.issue-form-select {
+  width: 100%;
+  padding: 10px 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+
+  background: white;
+  color: #1f2937;
+}
+
+.issue-form-input:focus,
+.issue-form-select:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #2563eb;
+}
+.issue-controls {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: end;
+  gap: 12px;
+
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.search-input,
+.control-group select {
+  padding: 10px 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+
+  background: white;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.control-group span {
+  color: #6b7280;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.search-input:focus,
+.control-group select:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #2563eb;
 }

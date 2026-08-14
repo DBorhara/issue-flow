@@ -19,8 +19,9 @@ function IssueControls(
     props: IssueControlsProps
 ) {
     return (
-        <section>
+        <section className="issue-controls">
             <input
+                className="search-input"
                 type="text"
                 placeholder="Search issues..."
                 value={props.searchTerm}
@@ -31,8 +32,8 @@ function IssueControls(
                 }
             />
 
-            <label>
-                Status:
+            <label className="control-group">
+                <span>Status</span>
 
                 <select
                     value={props.statusFilter}
@@ -51,8 +52,8 @@ function IssueControls(
                 </select>
             </label>
 
-            <label>
-                Sort:
+            <label className="control-group">
+                <span>Sort</span>
 
                 <select
                     value={props.sortOption}
