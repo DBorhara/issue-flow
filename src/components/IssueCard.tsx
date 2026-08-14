@@ -7,23 +7,29 @@ type IssueCardProps = {
     priority: Priority;
     onStatusChange: (id: number, status: Status) => void;
     onTitleChange: (id: number, title: string) => void;
+    onPriorityChange: (id: number, priority: Priority) => void;
     onDelete: (id: number) => void;
 }
 function IssueCard(props: IssueCardProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(props.title);
-    function saveTitle() {
+    const [editedPriority, setEditedPriority] =
+        useState<Priority>(props.priority);
+
+    function saveChanges() {
         if (editedTitle.trim() === "") {
             return
         }
 
         props.onTitleChange(props.id, editedTitle.trim())
+        props.onPriorityChange(props.id, editedPriority)
 
         setIsEditing(false)
     }
 
     function cancelEditing() {
         setEditedTitle(props.title)
+        setEditedPriority(props.priority)
         setIsEditing(false)
     }
     return (
@@ -33,9 +39,18 @@ function IssueCard(props: IssueCardProps) {
                     <input
                         type="text"
                         value={editedTitle}
-                        onChange={(event) => setEditedTitle(event.target.value)} />
+                        onChange={(event) =>
+                            setEditedTitle(event.target.value)} />
+                    <select
+                        value={editedPriority}
+                        onChange={(event) =>
+                            setEditedPriority(event.target.value as Priority)}>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
 
-                    <button onClick={saveTitle}>
+                    <button onClick={saveChanges}>
                         Save
                     </button>
                     <button onClick={cancelEditing}>
@@ -57,7 +72,8 @@ function IssueCard(props: IssueCardProps) {
                 <select
                     value={props.status}
                     onChange={(event) =>
-                        props.onStatusChange(props.id, event.target.value as Status)}>
+                        props.onStatusChange(props.id, event.target.value as
+                            Status)}>
                     <option value="Todo">Todo</option>
                     <option value="In Progress"> In Progress</option>
                     <option value="Done">Done</option>

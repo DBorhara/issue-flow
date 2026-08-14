@@ -39,7 +39,8 @@ function App() {
     const [showIssues, setShowIssues] = useState(true);
     const [issues, setIssues] = useState<Issue[]>(initialIssues);
     const [newIssueTitle, setNewIssueTitle] = useState("");
-    const [newIssuePriority, setNewIssuePriority] = useState<Priority>("Medium");
+    const [newIssuePriority, setNewIssuePriority] =
+        useState<Priority>("Medium");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("All")
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -48,7 +49,8 @@ function App() {
             return;
         }
         setIssues((currentIssues) => {
-            const nextId = Math.max(0, ...currentIssues.map((issue) => issue.id)) + 1;
+            const nextId = Math.max(0, ...currentIssues.map((issue) =>
+                issue.id)) + 1;
             const newIssue: Issue = {
                 id: nextId,
                 title: newIssueTitle,
@@ -94,6 +96,20 @@ function App() {
         )
     }
 
+    function updateIssuePriority(id: number, newPriority: Priority) {
+        setIssues((currentIssues) =>
+            currentIssues.map((issue) => {
+                if (issue.id === id) {
+                    return {
+                        ...issue,
+                        priority: newPriority
+                    }
+                }
+                return issue;
+            }
+            ))
+    }
+
     function handleSumbit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
 
@@ -102,9 +118,12 @@ function App() {
 
     const filteredIssues = issues.filter((issue) => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
-        const matchStatus = statusFilter == "All" || issue.status == statusFilter;
+        const matchStatus = statusFilter == "All"
+            || issue.status == statusFilter;
 
-        const matchSearch = issue.title.toLowerCase().includes(normalizedSearch);
+        const matchSearch = issue.title
+            .toLowerCase()
+            .includes(normalizedSearch);
 
         return matchStatus && matchSearch;
 
@@ -115,7 +134,10 @@ function App() {
             <main>
                 <Header />
 
-                <button onClick={() => { setShowIssues((current) => !current) }} >
+                <button onClick={() => {
+                    setShowIssues((current) =>
+                        !current)
+                }} >
                     {showIssues ? "Hide Issues" : "Show Issues"}
                 </button>
                 <input
@@ -128,7 +150,8 @@ function App() {
                     <input
                         type="text"
                         value={newIssueTitle}
-                        onChange={(event) => setNewIssueTitle(event.target.value)}
+                        onChange={(event) =>
+                            setNewIssueTitle(event.target.value)}
                     />
 
                     <select
@@ -147,7 +170,8 @@ function App() {
                         <select
                             value={statusFilter}
                             onChange={(event) =>
-                                setStatusFilter(event.target.value as StatusFilter)
+                                setStatusFilter(event.target.value as
+                                    StatusFilter)
                             }
                         >
                             <option value="All">All</option>
@@ -170,6 +194,7 @@ function App() {
                         priority={issue.priority}
                         onStatusChange={updateIssueStatus}
                         onTitleChange={updateIssueTitle}
+                        onPriorityChange={updateIssuePriority}
                         onDelete={deleteIssue}
                     />
                 ))}
