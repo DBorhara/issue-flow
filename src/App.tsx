@@ -34,6 +34,7 @@ import './App.css'
 import { useState } from "react"
 import Header from './components/Header'
 import IssueCard from './components/IssueCard'
+import IssuesSummary from './components/IssueSummary';
 
 function App() {
     const [showIssues, setShowIssues] = useState(true);
@@ -43,6 +44,12 @@ function App() {
         useState<Priority>("Medium");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("All")
     const [searchTerm, setSearchTerm] = useState("");
+
+    const totalIssues = issues.length;
+    const todoCount = issues.filter((issue) => issue.status === "Todo").length
+    const inProgressCount = issues.filter((issue) =>
+        issue.status === "In Progress").length
+    const doneCount = issues.filter((issue) => issue.status === "Done").length
 
     function addIssue() {
         if (newIssueTitle.trim() == "") {
@@ -133,7 +140,12 @@ function App() {
 
             <main>
                 <Header />
-
+                <IssuesSummary
+                    total={totalIssues}
+                    todo={todoCount}
+                    inProgress={inProgressCount}
+                    done={doneCount}
+                />
                 <button onClick={() => {
                     setShowIssues((current) =>
                         !current)
