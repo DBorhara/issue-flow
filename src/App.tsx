@@ -5,34 +5,8 @@ import type {
     Status,
     StatusFilter
 } from './types';
-const initialIssues: Issue[] = [
-    {
-        id: 1,
-        title: "Login button does not work",
-        status: "Todo",
-        priority: "High",
-    },
-    {
-        id: 2,
-        title: "Create dashboard layout",
-        status: "In Progress",
-        priority: "Medium",
-    },
-    {
-        id: 3,
-        title: "Add search functionality",
-        status: "Done",
-        priority: "Low",
-    },
-    {
-        id: 4,
-        title: "Add dark mode",
-        status: "Todo",
-        priority: "Low",
-    }
-];
 import './App.css'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Header from './components/Header'
 import IssueCard from './components/IssueCard'
 import IssuesSummary from './components/IssueSummary';
@@ -41,11 +15,50 @@ import IssueControls from './components/IssueControls';
 
 function App() {
     const [showIssues, setShowIssues] = useState(true);
-    const [issues, setIssues] = useState<Issue[]>(initialIssues);
+    const [issues, setIssues] = useState<Issue[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] =
         useState<StatusFilter>("All");
     const [sortOption, setSortOption] = useState<SortOption>("Newest");
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        async function loadIssues() {
+            try {
+                const response = await fetch(
+                    "/api/issues",
+                    { signal: controller.signal }
+                )
+                if (!response.ok) {
+                    throw new Error(`Request failed: ${response.status}`)
+                }
+                const data: Issue[] = await response.json();
+                setIssues(data);
+            } catch (error) {
+                if (
+                    error instanceof Error &&
+                    error.name === "AbortError"
+                ) {
+                    return;
+                }
+
+                setError("Unable to load issues.");
+            } finally {
+                if (!controller.signal.aborted) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        loadIssues();
+
+        return () => {
+            controller.abort();
+        }
+    }, [])
 
     const totalIssues = issues.length;
     const todoCount = issues.filter((issue) => issue.status === "Todo").length
@@ -184,19 +197,26 @@ function App() {
                         onStatusFilterChange={setStatusFilter}
                         onSortChange={setSortOption}
                     />
-                    {showIssues && sortedIssues.map((issue) => (
-                        <IssueCard
-                            key={issue.id}
-                            id={issue.id}
-                            title={issue.title}
-                            status={issue.status}
-                            priority={issue.priority}
-                            onStatusChange={updateIssueStatus}
-                            onTitleChange={updateIssueTitle}
-                            onPriorityChange={updateIssuePriority}
-                            onDelete={deleteIssue}
-                        />
-                    ))}
+                    {isLoading && (<p>Loading Issues</p>)}
+                    {error && (
+                        <p role="alert">{error}</p>
+                    )}
+                    {!isLoading
+                        && !error
+                        && showIssues
+                        && sortedIssues.map((issue) => (
+                            <IssueCard
+                                key={issue.id}
+                                id={issue.id}
+                                title={issue.title}
+                                status={issue.status}
+                                priority={issue.priority}
+                                onStatusChange={updateIssueStatus}
+                                onTitleChange={updateIssueTitle}
+                                onPriorityChange={updateIssuePriority}
+                                onDelete={deleteIssue}
+                            />
+                        ))}
                 </section>
             </main>
         </div>)
