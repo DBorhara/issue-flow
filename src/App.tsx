@@ -66,18 +66,33 @@ function App() {
         issue.status === "In Progress").length
     const doneCount = issues.filter((issue) => issue.status === "Done").length
 
-    function addIssue(title: string, priority: Priority) {
-        setIssues((currentIssues) => {
-            const nextId = Math.max(0, ...currentIssues.map((issue) => issue.id)) + 1
-
-            const newIssue: Issue = {
-                id: nextId,
-                title,
-                status: "Todo",
-                priority
+    async function addIssue(title: string, priority: Priority): Promise<boolean> {
+        try {
+            const response = await fetch("/api/issues", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ title, priority })
+            })
+            if (!response.ok) {
+                throw new Error(
+                    `Request failed: ${response.status}`
+                );
             }
-            return [...currentIssues, newIssue];
-        })
+
+            const newIssue: Issue =
+                await response.json();
+
+            setIssues((currentIssues) => [
+                ...currentIssues,
+                newIssue,
+            ]);
+
+            return true;
+        } catch {
+            return false
+        }
     }
     function updateIssueStatus(id: number, newStatus: Status) {
         setIssues((currentIssues) =>

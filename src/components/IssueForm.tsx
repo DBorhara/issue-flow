@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Priority } from "../types";
 
 type IssueFormProps = {
-    onAddIssue: (title: string, priority: Priority) => void;
+    onAddIssue: (title: string, priority: Priority) => Promise<boolean>;
 };
 
 function IssueForm(props: IssueFormProps) {
@@ -10,7 +10,7 @@ function IssueForm(props: IssueFormProps) {
     const [priority, setPriority] =
         useState<Priority>("Medium");
 
-    function handleSubmit(
+    async function handleSubmit(
         event: React.SubmitEvent<HTMLFormElement>
     ) {
         event.preventDefault();
@@ -19,12 +19,18 @@ function IssueForm(props: IssueFormProps) {
             return;
         }
 
-        props.onAddIssue(title.trim(), priority);
+        const success = await props.onAddIssue(
+            title.trim(),
+            priority
+        );
+
+        if (!success) {
+            return;
+        }
 
         setTitle("");
         setPriority("Medium");
     }
-
     return (
         <form className="issue-form" onSubmit={handleSubmit}>
             <input
