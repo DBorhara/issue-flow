@@ -11,6 +11,9 @@ import {
 import app from "../src/app.js";
 import { pool } from "../src/db.js";
 
+// At the beginning of each test:
+// Truncate: Delete all rows
+// Restart Identity: Reset all ids
 beforeEach(async () => {
     await pool.query(
         "TRUNCATE TABLE issues RESTART IDENTITY"
@@ -21,6 +24,7 @@ afterAll(async () => {
     await pool.end();
 });
 
+// Seed helper function
 async function seedIssue() {
     const result = await pool.query(
         `
@@ -45,6 +49,7 @@ async function seedIssue() {
 }
 
 describe("Issue API", () => {
+    // Create
     it("creates an issue", async () => {
         const response = await request(app)
             .post("/api/issues")
@@ -81,6 +86,7 @@ describe("Issue API", () => {
         });
     });
 
+    // Create: Empty title
     it("rejects an empty issue title", async () => {
         const response = await request(app)
             .post("/api/issues")
@@ -96,6 +102,23 @@ describe("Issue API", () => {
         });
     });
 
+    // Create: Invalid priority
+    it("rejects an invalid priority", async () => {
+        const response = await request(app)
+            .post("/api/issues")
+            .send({
+                title: "Fix login bug",
+                priority: "Critical",
+            });
+
+        expect(response.status).toBe(400);
+
+        expect(response.body).toEqual({
+            message: "Invalid priority.",
+        });
+    })
+
+    // Read All
     it("returns issues", async () => {
         await seedIssue();
 
@@ -113,6 +136,8 @@ describe("Issue API", () => {
         });
     });
 
+
+    // Update
     it("updates an issue", async () => {
         const issue = await seedIssue();
 
@@ -143,6 +168,40 @@ describe("Issue API", () => {
         expect(result.rows[0].status).toBe("Done");
     });
 
+    // Update: Invalid status update
+    it("rejects an invalid status update", async () => {
+        const issue = await seedIssue();
+
+        const response = await request(app)
+            .patch(`/api/issues/${issue.id}`)
+            .send({
+                status: "Almost Done",
+            });
+
+        expect(response.status).toBe(400);
+
+        expect(response.body).toEqual({
+            message: "Invalid status.",
+        });
+    });
+
+    // Update: Error 404
+    it("returns 404 when updating a missing issue", async () => {
+        const response = await request(app)
+            .patch("/api/issues/999")
+            .send({
+                status: "Done",
+            });
+
+        expect(response.status).toBe(404);
+
+        expect(response.body).toEqual({
+            message: "Issue not found.",
+        });
+    });
+
+
+    // Delete
     it("deletes an issue", async () => {
         const issue = await seedIssue();
 
@@ -161,5 +220,27 @@ describe("Issue API", () => {
         );
 
         expect(result.rows).toHaveLength(0);
+    });
+    // Delete: Missing issue
+    it("returns 404 when deleting a missing issue", async () => {
+        const response = await request(app)
+            .delete("/api/issues/999");
+
+        expect(response.status).toBe(404);
+
+        expect(response.body).toEqual({
+            message: "Issue not found.",
+        });
+    });
+    // Delete: Invalid issue id
+    it("rejects an invalid issue ID", async () => {
+        const response = await request(app)
+            .delete("/api/issues/banana");
+
+        expect(response.status).toBe(400);
+
+        expect(response.body).toEqual({
+            message: "Invalid issue ID.",
+        });
     });
 });
