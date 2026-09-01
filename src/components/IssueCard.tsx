@@ -6,8 +6,7 @@ type IssueCardProps = {
     status: Status;
     priority: Priority;
     onStatusChange: (id: number, status: Status) => void;
-    onTitleChange: (id: number, title: string) => void;
-    onPriorityChange: (id: number, priority: Priority) => void;
+    onUpdate: (id: number, title: string, priority: Priority) => Promise<boolean>;
     onDelete: (id: number) => void;
 }
 function IssueCard(props: IssueCardProps) {
@@ -16,17 +15,23 @@ function IssueCard(props: IssueCardProps) {
     const [editedPriority, setEditedPriority] =
         useState<Priority>(props.priority);
 
-    function saveChanges() {
-        if (editedTitle.trim() === "") {
+    async function saveChanges() {
+        const trimmedTitle = editedTitle.trim();
+
+        if (trimmedTitle === "") {
             return;
         }
 
-        props.onTitleChange(props.id, editedTitle.trim());
-        props.onPriorityChange(props.id, editedPriority);
+        const success = await props.onUpdate(
+            props.id,
+            trimmedTitle,
+            editedPriority
+        );
 
-        setIsEditing(false);
+        if (success) {
+            setIsEditing(false);
+        }
     }
-
     function cancelEditing() {
         setEditedTitle(props.title);
         setEditedPriority(props.priority);

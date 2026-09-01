@@ -10,6 +10,22 @@ type Issue = {
     priority: Priority;
 };
 
+function isStatus(value: unknown): value is Status {
+    return (
+        value === "Todo" ||
+        value === "In Progress" ||
+        value === "Done"
+    );
+}
+
+function isPriority(value: unknown): value is Priority {
+    return (
+        value === "Low" ||
+        value === "Medium" ||
+        value === "High"
+    );
+}
+
 const app = express();
 const PORT = 3001;
 
@@ -83,23 +99,20 @@ app.post("/api/issues", (request, response) => {
 
 app.patch("/api/issues/:id", (request, response) => {
     const id = Number(request.params.id);
-    const { status } = request.body;
+
+    const {
+        title,
+        status,
+        priority,
+    }: {
+        title?: unknown;
+        status?: unknown;
+        priority?: unknown;
+    } = request.body;
 
     if (!Number.isInteger(id)) {
         response.status(400).json({
             message: "Invalid issue ID.",
-        });
-
-        return;
-    }
-
-    if (
-        status !== "Todo" &&
-        status !== "In Progress" &&
-        status !== "Done"
-    ) {
-        response.status(400).json({
-            message: "Invalid status.",
         });
 
         return;
@@ -117,13 +130,59 @@ app.patch("/api/issues/:id", (request, response) => {
         return;
     }
 
+    if (
+        title !== undefined &&
+        (typeof title !== "string" || title.trim() === "")
+    ) {
+        response.status(400).json({
+            message: "Invalid title.",
+        });
+
+        return;
+    }
+
+    if (
+        status !== undefined &&
+        !isStatus(status)
+    ) {
+        response.status(400).json({
+            message: "Invalid status.",
+        });
+
+        return;
+    }
+
+    if (
+        priority !== undefined &&
+        !isPriority(priority)
+    ) {
+        response.status(400).json({
+            message: "Invalid priority.",
+        });
+
+        return;
+    }
+
     const updatedIssue: Issue = {
         ...issue,
-        status,
+
+        ...(title !== undefined && {
+            title: title.trim(),
+        }),
+
+        ...(status !== undefined && {
+            status,
+        }),
+
+        ...(priority !== undefined && {
+            priority,
+        }),
     };
 
     issues = issues.map((issue) =>
-        issue.id === id ? updatedIssue : issue
+        issue.id === id
+            ? updatedIssue
+            : issue
     );
 
     response.json(updatedIssue);

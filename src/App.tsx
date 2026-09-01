@@ -137,34 +137,53 @@ function App() {
             currentIssues.filter((issue) => issue.id !== id))
     }
 
-    function updateIssueTitle(id: number, newTitle: string) {
-        setIssues((currentIssues) =>
-            currentIssues.map((issue) => {
-                if (issue.id === id) {
-                    return {
-                        ...issue,
-                        title: newTitle
-                    }
+    async function updateIssueDetails(
+        id: number,
+        title: string,
+        priority: Priority
+    ): Promise<boolean> {
+        try {
+            const response = await fetch(
+                `/api/issues/${id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        title,
+                        priority,
+                    }),
                 }
-                return issue;
-            })
-        )
-    }
+            );
 
-    function updateIssuePriority(id: number, newPriority: Priority) {
-        setIssues((currentIssues) =>
-            currentIssues.map((issue) => {
-                if (issue.id === id) {
-                    return {
-                        ...issue,
-                        priority: newPriority
-                    }
-                }
-                return issue;
+            if (!response.ok) {
+                throw new Error(
+                    `Request failed: ${response.status}`
+                );
             }
-            ))
-    }
 
+            const updatedIssue: Issue =
+                await response.json();
+
+            setIssues((currentIssues) =>
+                currentIssues.map((issue) =>
+                    issue.id === updatedIssue.id
+                        ? updatedIssue
+                        : issue
+                )
+            );
+
+            return true;
+        } catch (error) {
+            console.error(
+                "Unable to update issue:",
+                error
+            );
+
+            return false;
+        }
+    }
 
     const matchingIssues = issues.filter((issue) => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -251,8 +270,7 @@ function App() {
                                 status={issue.status}
                                 priority={issue.priority}
                                 onStatusChange={updateIssueStatus}
-                                onTitleChange={updateIssueTitle}
-                                onPriorityChange={updateIssuePriority}
+                                onUpdate={updateIssueDetails}
                                 onDelete={deleteIssue}
                             />
                         ))}
