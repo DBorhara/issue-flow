@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:18
+    container_name: issueflow-db
+    restart: unless-stopped
+
+    env_file:
+      - ./server/.env
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - issueflow_pgdata:/var/lib/postgresql
+      - ./server/db/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+
+volumes:
+  issueflow_pgdata:

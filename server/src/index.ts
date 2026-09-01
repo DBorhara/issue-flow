@@ -1,4 +1,5 @@
 import express from "express";
+import { pool } from "./db.js";
 
 type Status = "Todo" | "In Progress" | "Done";
 type Priority = "Low" | "Medium" | "High";
@@ -51,6 +52,25 @@ let issues: Issue[] = [
         priority: "Low",
     },
 ];
+
+app.get("/api/health", async (_request, response) => {
+    try {
+        const result = await pool.query(
+            "SELECT NOW() AS database_time"
+        );
+
+        response.json({
+            status: "ok",
+            databaseTime: result.rows[0].database_time,
+        });
+    } catch (error) {
+        console.error("Database connection failed:", error);
+
+        response.status(500).json({
+            status: "error",
+        });
+    }
+});
 
 app.get("/api/issues", (_request, response) => {
     response.json(issues);
@@ -187,6 +207,36 @@ app.patch("/api/issues/:id", (request, response) => {
 
     response.json(updatedIssue);
 })
+
+app.delete("/api/issues/:id", (request, response) => {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id)) {
+        response.status(400).json({
+            message: "Invalid issue ID.",
+        });
+
+        return;
+    }
+    // .some : Does at least one element satisfy this condition?
+    const issueExists = issues.some(
+        (issue) => issue.id === id
+    );
+
+    if (!issueExists) {
+        response.status(404).json({
+            message: "Issue not found.",
+        });
+
+        return;
+    }
+
+    issues = issues.filter(
+        (issue) => issue.id !== id
+    );
+
+    response.status(204).send();
+});
 
 app.listen(PORT, () => {
     console.log(`IssueFlow API running on port ${PORT}`);
