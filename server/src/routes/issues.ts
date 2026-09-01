@@ -1,6 +1,12 @@
 import { Router } from "express";
 
-import { pool } from "../db.js";
+
+import {
+    createIssue,
+    getAllIssues,
+    updateIssue,
+    deleteIssue
+} from "../repositories/issues.js";
 import type { Issue } from "../types.js";
 import {
     isPriority,
@@ -11,19 +17,8 @@ const router = Router();
 
 router.get("/", async (_request, response) => {
     try {
-        const result = await pool.query<Issue>(
-            `
-        SELECT
-          id,
-          title,
-          status,
-          priority
-        FROM issues
-        ORDER BY created_at DESC, id DESC
-      `
-        );
-
-        response.json(result.rows);
+        const issues = await getAllIssues();
+        response.json(issues);
     } catch (error) {
         console.error(
             "Unable to load issues:",
@@ -59,28 +54,8 @@ router.post("/", async (request, response) => {
     }
 
     try {
-        const result = await pool.query<Issue>(
-            `
-        INSERT INTO issues (
-          title,
-          priority
-        )
-        VALUES ($1, $2)
-        RETURNING
-          id,
-          title,
-          status,
-          priority
-      `,
-            [
-                title.trim(),
-                priority,
-            ]
-        );
-
-        response.status(201).json(
-            result.rows[0]
-        );
+        const newIssue = await createIssue(title.trim(), priority);
+        response.status(201).json(newIssue);
     } catch (error) {
         console.error(
             "Unable to create issue:",
@@ -151,39 +126,24 @@ router.patch("/:id", async (request, response) => {
     }
 
     try {
-        const result = await pool.query<Issue>(
-            `
-        UPDATE issues
-        SET
-          title = COALESCE($1, title),
-          status = COALESCE($2, status),
-          priority = COALESCE($3, priority),
-          updated_at = NOW()
-        WHERE id = $4
-        RETURNING
-          id,
-          title,
-          status,
-          priority
-      `,
-            [
-                title === undefined
-                    ? null
-                    : title.trim(),
+        const updatedIssue = await updateIssue(
+            id,
+            {
+                title:
+                    typeof title === "string"
+                        ? title.trim()
+                        : undefined,
 
-                status === undefined
-                    ? null
-                    : status,
+                status:
+                    isStatus(status)
+                        ? status
+                        : undefined,
 
-                priority === undefined
-                    ? null
-                    : priority,
-
-                id,
-            ]
-        );
-
-        const updatedIssue = result.rows[0];
+                priority:
+                    isPriority(priority)
+                        ? priority
+                        : undefined,
+            });
 
         if (!updatedIssue) {
             response.status(404).json({
@@ -218,23 +178,15 @@ router.delete("/:id", async (request, response) => {
     }
 
     try {
-        const result = await pool.query(
-            `
-        DELETE FROM issues
-        WHERE id = $1
-        RETURNING id
-      `,
-            [id]
-        );
+        const deleted = await deleteIssue(id);
 
-        if (result.rowCount === 0) {
+        if (!deleted) {
             response.status(404).json({
                 message: "Issue not found.",
             });
 
             return;
         }
-
         response.status(204).send();
     } catch (error) {
         console.error(
