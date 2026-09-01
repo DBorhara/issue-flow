@@ -326,11 +326,7 @@ Open the local URL displayed by Vite.
 
 ## Screenshots
 
-_Add a screenshot of the main IssueFlow dashboard here._
-
-```md
 ![IssueFlow Dashboard](docs/issueflow-dashboard.png)
-```
 
 ## Future Improvements
 
