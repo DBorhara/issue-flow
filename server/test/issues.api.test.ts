@@ -200,6 +200,55 @@ describe("Issue API", () => {
         });
     });
 
+    // Update: Empty title
+    it("rejects an empty title update", async () => {
+        const issue = await seedIssue();
+
+        const response = await request(app)
+            .patch(`/api/issues/${issue.id}`)
+            .send({
+                title: "",
+            });
+
+        expect(response.status).toBe(400);
+
+        expect(response.body).toEqual({
+            message: "Invalid title.",
+        });
+    });
+
+    // Update: Invalid priority
+    it("rejects an invalid priority update", async () => {
+        const issue = await seedIssue();
+
+        const response = await request(app)
+            .patch(`/api/issues/${issue.id}`)
+            .send({
+                priority: "Critical",
+            });
+
+        expect(response.status).toBe(400);
+
+        expect(response.body).toEqual({
+            message: "Invalid priority.",
+        });
+    });
+
+    //Update: Invalid id
+    it("rejects an invalid issue ID when updating", async () => {
+        const response = await request(app)
+            .patch("/api/issues/banana")
+            .send({
+                status: "Done",
+            });
+
+        expect(response.status).toBe(400);
+
+        expect(response.body).toEqual({
+            message: "Invalid issue ID.",
+        });
+    });
+
 
     // Delete
     it("deletes an issue", async () => {
@@ -242,5 +291,22 @@ describe("Issue API", () => {
         expect(response.body).toEqual({
             message: "Invalid issue ID.",
         });
+    });
+});
+
+describe("Health API", () => {
+    it("reports a healthy database connection", async () => {
+        const response = await request(app)
+            .get("/api/health");
+
+        expect(response.status).toBe(200);
+
+        expect(response.body).toMatchObject({
+            status: "ok",
+        });
+
+        expect(
+            response.body.databaseTime
+        ).toBeDefined();
     });
 });
