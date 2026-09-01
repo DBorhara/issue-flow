@@ -32,26 +32,6 @@ const PORT = 3001;
 
 app.use(express.json());
 
-let issues: Issue[] = [
-    {
-        id: 1,
-        title: "Login button does not work",
-        status: "Todo",
-        priority: "High",
-    },
-    {
-        id: 2,
-        title: "Create dashboard layout",
-        status: "In Progress",
-        priority: "Medium",
-    },
-    {
-        id: 3,
-        title: "Add search functionality",
-        status: "Done",
-        priority: "Low",
-    },
-];
 
 app.get("/api/health", async (_request, response) => {
     try {
@@ -260,7 +240,7 @@ app.patch("/api/issues/:id", async (request, response) => {
     }
 })
 
-app.delete("/api/issues/:id", (request, response) => {
+app.delete("/api/issues/:id", async (request, response) => {
     const id = Number(request.params.id);
 
     if (!Number.isInteger(id)) {
@@ -270,24 +250,36 @@ app.delete("/api/issues/:id", (request, response) => {
 
         return;
     }
-    // .some : Does at least one element satisfy this condition?
-    const issueExists = issues.some(
-        (issue) => issue.id === id
-    );
 
-    if (!issueExists) {
-        response.status(404).json({
-            message: "Issue not found.",
+    try {
+        const result = await pool.query(
+            `
+        DELETE FROM issues
+        WHERE id = $1
+        RETURNING id
+      `,
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            response.status(404).json({
+                message: "Issue not found.",
+            });
+
+            return;
+        }
+
+        response.status(204).send();
+    } catch (error) {
+        console.error(
+            "Unable to delete issue:",
+            error
+        );
+
+        response.status(500).json({
+            message: "Unable to delete issue.",
         });
-
-        return;
     }
-
-    issues = issues.filter(
-        (issue) => issue.id !== id
-    );
-
-    response.status(204).send();
 });
 
 app.listen(PORT, () => {
