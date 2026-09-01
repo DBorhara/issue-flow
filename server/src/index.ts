@@ -72,8 +72,28 @@ app.get("/api/health", async (_request, response) => {
     }
 });
 
-app.get("/api/issues", (_request, response) => {
-    response.json(issues);
+app.get("/api/issues", async (_request, response) => {
+    try {
+        const result = await pool.query<Issue>(
+            `
+        SELECT
+          id,
+          title,
+          status,
+          priority
+        FROM issues
+        ORDER BY created_at DESC, id DESC
+      `
+        );
+
+        response.json(result.rows);
+    } catch (error) {
+        console.error("Unable to load issues:", error);
+
+        response.status(500).json({
+            message: "Unable to load issues.",
+        });
+    } response.json(issues);
 });
 
 app.post("/api/issues", (request, response) => {
