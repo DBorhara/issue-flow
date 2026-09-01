@@ -96,10 +96,13 @@ app.get("/api/issues", async (_request, response) => {
     } response.json(issues);
 });
 
-app.post("/api/issues", (request, response) => {
+app.post("/api/issues", async (request, response) => {
     const { title, priority } = request.body;
 
-    if (typeof title !== "string" || title.trim() === "") {
+    if (
+        typeof title !== "string" ||
+        title.trim() === ""
+    ) {
         response.status(400).json({
             message: "Title is required.",
         });
@@ -107,11 +110,7 @@ app.post("/api/issues", (request, response) => {
         return;
     }
 
-    if (
-        priority !== "Low" &&
-        priority !== "Medium" &&
-        priority !== "High"
-    ) {
+    if (!isPriority(priority)) {
         response.status(400).json({
             message: "Invalid priority.",
         });
@@ -119,22 +118,42 @@ app.post("/api/issues", (request, response) => {
         return;
     }
 
-    const nextId =
-        Math.max(
-            0,
-            ...issues.map((issue) => issue.id)
-        ) + 1;
+    try {
+        const result = await pool.query<Issue>(
+            `
+        INSERT INTO issues (
+          title,
+          priority
+        )
+        VALUES ($1, $2)
+        RETURNING
+          id,
+          title,
+          status,
+          priority
+      `,
+            // Parameterize Query
+            // $1 = title.trim()
+            // $2 = priority
+            [
+                title.trim(),
+                priority,
+            ]
+        );
 
-    const newIssue: Issue = {
-        id: nextId,
-        title: title.trim(),
-        status: "Todo",
-        priority,
-    };
+        response.status(201).json(
+            result.rows[0]
+        );
+    } catch (error) {
+        console.error(
+            "Unable to create issue:",
+            error
+        );
 
-    issues = [...issues, newIssue];
-
-    response.status(201).json(newIssue);
+        response.status(500).json({
+            message: "Unable to create issue.",
+        });
+    }
 });
 
 app.patch("/api/issues/:id", (request, response) => {
