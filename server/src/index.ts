@@ -81,6 +81,54 @@ app.post("/api/issues", (request, response) => {
     response.status(201).json(newIssue);
 });
 
+app.patch("/api/issues/:id", (request, response) => {
+    const id = Number(request.params.id);
+    const { status } = request.body;
+
+    if (!Number.isInteger(id)) {
+        response.status(400).json({
+            message: "Invalid issue ID.",
+        });
+
+        return;
+    }
+
+    if (
+        status !== "Todo" &&
+        status !== "In Progress" &&
+        status !== "Done"
+    ) {
+        response.status(400).json({
+            message: "Invalid status.",
+        });
+
+        return;
+    }
+
+    const issue = issues.find(
+        (issue) => issue.id === id
+    );
+
+    if (!issue) {
+        response.status(404).json({
+            message: "Issue not found.",
+        });
+
+        return;
+    }
+
+    const updatedIssue: Issue = {
+        ...issue,
+        status,
+    };
+
+    issues = issues.map((issue) =>
+        issue.id === id ? updatedIssue : issue
+    );
+
+    response.json(updatedIssue);
+})
+
 app.listen(PORT, () => {
     console.log(`IssueFlow API running on port ${PORT}`);
 });

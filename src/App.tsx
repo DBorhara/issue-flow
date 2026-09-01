@@ -94,19 +94,43 @@ function App() {
             return false
         }
     }
-    function updateIssueStatus(id: number, newStatus: Status) {
-        setIssues((currentIssues) =>
-            currentIssues.map((issue) => {
-                if (issue.id === id) {
-                    return {
-                        ...issue,
+    async function updateIssueStatus(id: number, newStatus: Status) {
+        try {
+            const response = await fetch(
+                `/api/issues/${id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
                         status: newStatus,
-                    };
+                    }),
                 }
+            );
 
-                return issue;
-            })
-        );
+            if (!response.ok) {
+                throw new Error(
+                    `Request failed: ${response.status}`
+                );
+            }
+
+            const updatedIssue: Issue =
+                await response.json();
+
+            setIssues((currentIssues) =>
+                currentIssues.map((issue) =>
+                    issue.id === updatedIssue.id
+                        ? updatedIssue
+                        : issue
+                )
+            );
+        } catch (error) {
+            console.error(
+                "Unable to update issue status:",
+                error
+            );
+        }
     }
     function deleteIssue(id: number) {
         setIssues((currentIssues) =>
