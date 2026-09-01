@@ -7,7 +7,7 @@ type IssueCardProps = {
     priority: Priority;
     onStatusChange: (id: number, status: Status) => void;
     onUpdate: (id: number, title: string, priority: Priority) => Promise<boolean>;
-    onDelete: (id: number) => void;
+    onDelete: (id: number) => Promise<void>;
 }
 function IssueCard(props: IssueCardProps) {
     const [isEditing, setIsEditing] = useState(false);

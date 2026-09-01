@@ -132,9 +132,32 @@ function App() {
             );
         }
     }
-    function deleteIssue(id: number) {
-        setIssues((currentIssues) =>
-            currentIssues.filter((issue) => issue.id !== id))
+    async function deleteIssue(id: number) {
+        try {
+            const response = await fetch(
+                `/api/issues/${id}`,
+                {
+                    method: "DELETE",
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Request failed: ${response.status}`
+                );
+            }
+
+            setIssues((currentIssues) =>
+                currentIssues.filter(
+                    (issue) => issue.id !== id
+                )
+            );
+        } catch (error) {
+            console.error(
+                "Unable to delete issue:",
+                error
+            );
+        }
     }
 
     async function updateIssueDetails(
