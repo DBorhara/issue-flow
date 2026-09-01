@@ -1,8 +1,8 @@
 import app from "./app.js";
 
-const PORT = 3001;
+const PORT = Number(process.env.port) || 3001;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(
         `IssueFlow API running on port ${PORT}`
     );

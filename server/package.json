@@ -4,11 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "coverage":"vitest run --coverage"
+      "build": "tsc -p tsconfig.build.json",
+      "coverage":"vitest run --coverage",
+      "dev": "tsx src/index.ts",
+      "start": "node dist/index.js",
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "typecheck": "tsc --noEmit"
+
   },
   "keywords": [],
   "author": "",
