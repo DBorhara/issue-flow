@@ -93,7 +93,7 @@ app.get("/api/issues", async (_request, response) => {
         response.status(500).json({
             message: "Unable to load issues.",
         });
-    } response.json(issues);
+    }
 });
 
 app.post("/api/issues", async (request, response) => {
@@ -156,7 +156,7 @@ app.post("/api/issues", async (request, response) => {
     }
 });
 
-app.patch("/api/issues/:id", (request, response) => {
+app.patch("/api/issues/:id", async (request, response) => {
     const id = Number(request.params.id);
 
     const {
@@ -172,18 +172,6 @@ app.patch("/api/issues/:id", (request, response) => {
     if (!Number.isInteger(id)) {
         response.status(400).json({
             message: "Invalid issue ID.",
-        });
-
-        return;
-    }
-
-    const issue = issues.find(
-        (issue) => issue.id === id
-    );
-
-    if (!issue) {
-        response.status(404).json({
-            message: "Issue not found.",
         });
 
         return;
@@ -222,29 +210,54 @@ app.patch("/api/issues/:id", (request, response) => {
         return;
     }
 
-    const updatedIssue: Issue = {
-        ...issue,
+    try {
+        const result = await pool.query<Issue>(
+            `
+        UPDATE issues
+        SET
+          title = COALESCE($1, title),
+          status = COALESCE($2, status),
+          priority = COALESCE($3, priority),
+          updated_at = NOW()
+        WHERE id = $4
+        RETURNING
+          id,
+          title,
+          status,
+          priority
+      `,
+            // COALESCE : Give me the first value that isn't NULL.
+            // Lets us change only supplied properties
+            // without seperate SQL queries.
+            [
+                title === undefined ? null : title.trim(),
+                status === undefined ? null : status,
+                priority === undefined ? null : priority,
+                id,
+            ]
+        );
 
-        ...(title !== undefined && {
-            title: title.trim(),
-        }),
+        const updatedIssue = result.rows[0];
 
-        ...(status !== undefined && {
-            status,
-        }),
+        if (!updatedIssue) {
+            response.status(404).json({
+                message: "Issue not found.",
+            });
 
-        ...(priority !== undefined && {
-            priority,
-        }),
-    };
+            return;
+        }
 
-    issues = issues.map((issue) =>
-        issue.id === id
-            ? updatedIssue
-            : issue
-    );
+        response.json(updatedIssue);
+    } catch (error) {
+        console.error(
+            "Unable to update issue:",
+            error
+        );
 
-    response.json(updatedIssue);
+        response.status(500).json({
+            message: "Unable to update issue.",
+        });
+    }
 })
 
 app.delete("/api/issues/:id", (request, response) => {
