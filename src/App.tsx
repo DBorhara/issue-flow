@@ -13,6 +13,8 @@ import IssuesSummary from './components/IssueSummary';
 import IssueForm from './components/IssueForm';
 import IssueControls from './components/IssueControls';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "";
+
 function App() {
     const [showIssues, setShowIssues] = useState(true);
     const [issues, setIssues] = useState<Issue[]>([]);
@@ -29,7 +31,7 @@ function App() {
         async function loadIssues() {
             try {
                 const response = await fetch(
-                    "/api/issues",
+                    `${API_BASE_URL}/api/issues`,
                     { signal: controller.signal }
                 )
                 if (!response.ok) {
@@ -68,7 +70,7 @@ function App() {
 
     async function addIssue(title: string, priority: Priority): Promise<boolean> {
         try {
-            const response = await fetch("/api/issues", {
+            const response = await fetch(`${API_BASE_URL}/api/issues`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -97,7 +99,7 @@ function App() {
     async function updateIssueStatus(id: number, newStatus: Status) {
         try {
             const response = await fetch(
-                `/api/issues/${id}`,
+                `${API_BASE_URL}/api/issues/${id}`,
                 {
                     method: "PATCH",
                     headers: {
@@ -135,7 +137,7 @@ function App() {
     async function deleteIssue(id: number) {
         try {
             const response = await fetch(
-                `/api/issues/${id}`,
+                `${API_BASE_URL}/api/issues/${id}`,
                 {
                     method: "DELETE",
                 }
@@ -167,7 +169,7 @@ function App() {
     ): Promise<boolean> {
         try {
             const response = await fetch(
-                `/api/issues/${id}`,
+                `${API_BASE_URL}/api/issues/${id}`,
                 {
                     method: "PATCH",
                     headers: {
