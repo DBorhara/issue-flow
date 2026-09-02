@@ -4,25 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-      "build": "tsc -p tsconfig.build.json",
-      "coverage":"vitest run --coverage",
-      "dev": "tsx src/index.ts",
-      "start": "node dist/index.js",
-      "test": "vitest run",
-      "test:watch": "vitest",
-      "typecheck": "tsc --noEmit"
-
+    "build": "tsc -p tsconfig.build.json",
+    "coverage": "vitest run --coverage",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.2.0",
     "@types/pg": "^8.23.1",
