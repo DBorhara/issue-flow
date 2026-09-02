@@ -1,6 +1,7 @@
 # IssueFlow
 
 **Live Demo:** `https://issue-flow-ten.vercel.app/`
+
 **API Health:** `https://issue-flow-api.onrender.com/api/health`
 
 IssueFlow is a full-stack issue tracking application built with React, TypeScript, Express, and PostgreSQL. It provides a responsive workflow for creating, updating, searching, filtering, sorting, and deleting issues through a REST API backed by persistent PostgreSQL storage.
@@ -40,7 +41,6 @@ IssueFlow is a full-stack issue tracking application built with React, TypeScrip
 - Express
 - TypeScript
 - PostgreSQL
-- `pg`
 
 ### Testing
 
@@ -339,7 +339,7 @@ Install:
 ### Clone the Repository
 
 ```bash
-git clone YOUR_REPOSITORY_URL
+git clone https://github.com/DBorhara/issue-flow
 cd issue-flow
 ```
 
